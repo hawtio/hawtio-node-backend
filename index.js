@@ -95,6 +95,10 @@ var HawtioBackend;
         });
     }
     HawtioBackend.reload = reload;
+    function use(path, func) {
+        HawtioBackend.app.use(path, func);
+    }
+    HawtioBackend.use = use;
     function listen(cb) {
         var lrPort = config.liveReload.port || 35729;
         if (config.liveReload.enabled) {
