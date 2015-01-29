@@ -25,7 +25,7 @@ var config = {
     // server listen port
     port: 2772,
     // log level
-    logLevel: logger.DEBUG,
+    logLevel: logger.INFO,
     // path to mount the dyamic proxy
     proxy: '/proxy',
     // paths to connect to external services, an example config:
@@ -45,6 +45,7 @@ var config = {
             dir: '.'
         }
     ],
+    fallback: null,
     liveReload: {
         enabled: false,
         port: 35729
@@ -104,6 +105,11 @@ var HawtioBackend;
             HawtioBackend.log.debug("Executing startup task");
             cb();
         });
+        if (config.fallback) {
+            HawtioBackend.app.use(function (req, res, next) {
+                fs.createReadStream(config.fallback).pipe(res);
+            });
+        }
         server = HawtioBackend.app.listen(config.port, function () {
             if (config.liveReload.enabled) {
                 lr = tiny_lr();

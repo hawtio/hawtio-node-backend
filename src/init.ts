@@ -36,6 +36,10 @@ module HawtioBackend {
     });
   } 
 
+  export function use(path: any, func: any) {
+    app.use(path, func);
+  }
+
   export function listen(cb:(server:any) => void) {
     var lrPort = config.liveReload.port || 35729;
     if (config.liveReload.enabled) {
@@ -46,6 +50,11 @@ module HawtioBackend {
       log.debug("Executing startup task");
       cb();
     });
+    if (config.fallback) {
+      app.use((req, res, next) => {
+        fs.createReadStream(config.fallback).pipe(res);
+      });
+    } 
     server = app.listen(config.port, () => {
       if (config.liveReload.enabled) {
         lr = tiny_lr();

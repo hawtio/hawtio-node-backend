@@ -46,6 +46,7 @@ var config = {
       dir: '.'
     }
   ],
+  fallback: null,
   liveReload: {
     enabled: false,
     port: 35729

@@ -29,6 +29,7 @@ declare var config: {
         path: string;
         dir: string;
     }[];
+    fallback: any;
     liveReload: {
         enabled: boolean;
         port: number;
