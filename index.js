@@ -25,7 +25,8 @@ var config = {
     proxy: '/proxy',
     // paths to connect to external services, an example config:
     // {
-    //   proto: 'http'
+    //   proto: 'http',
+    //   hostname: 'localhost',
     //   port: 8282,
     //   path: '/hawtio/jolokia',
     //   targetPath: '/hawtio/jolokia'
@@ -111,13 +112,11 @@ var HawtioBackend;
 var HawtioBackend;
 (function (HawtioBackend) {
     function proxy(uri, req, res) {
-        try {
-            var r = request({ method: req.method, uri: uri, json: req.body });
-            req.pipe(r).pipe(res);
+        function handleError(e) {
+            res.status(500).end('error proxying to "' + uri + '": ' + e);
         }
-        catch (e) {
-            HawtioBackend.log.info('error proxying ' + uri + ': ', e);
-        }
+        var r = request({ method: req.method, uri: uri, json: req.body });
+        req.on('error', handleError).pipe(r).on('error', handleError).pipe(res).on('error', handleError);
     }
     function getTargetURI(options) {
         var target = new uri({
@@ -197,7 +196,7 @@ var HawtioBackend;
         proxy(uri, req, res);
     });
     HawtioBackend.addStartupTask(function () {
-        HawtioBackend.log.debug("Setting proxy to route: ", config.proxy);
+        HawtioBackend.log.debug("Setting dynamic proxy mount point: ", config.proxy);
         HawtioBackend.app.use(config.proxy, proxyRouter);
     });
 })(HawtioBackend || (HawtioBackend = {}));

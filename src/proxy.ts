@@ -3,12 +3,15 @@
 module HawtioBackend {
 
   function proxy(uri, req, res) {
-    try {
-      var r = request({method: req.method, uri: uri, json: req.body});
-      req.pipe(r).pipe(res);
-    } catch (e) {
-      log.info('error proxying ' + uri + ': ', e);
+    function handleError(e) {
+      res.status(500).end('error proxying to "' + uri + '": ' + e);
     }
+    var r = request({method: req.method, uri: uri, json: req.body});
+    req.on('error', handleError)
+      .pipe(r)
+      .on('error', handleError)
+      .pipe(res)
+      .on('error', handleError);
   }
 
   function getTargetURI(options) {
@@ -97,7 +100,7 @@ module HawtioBackend {
   });
 
   addStartupTask(() => {
-    log.debug("Setting proxy to route: ", config.proxy);
+    log.debug("Setting dynamic proxy mount point: ", config.proxy);
     app.use(config.proxy, proxyRouter);
   });
 

@@ -26,7 +26,8 @@ var config = {
   proxy: '/proxy',
   // paths to connect to external services, an example config:
   // {
-  //   proto: 'http'
+  //   proto: 'http',
+  //   hostname: 'localhost',
   //   port: 8282,
   //   path: '/hawtio/jolokia',
   //   targetPath: '/hawtio/jolokia'
