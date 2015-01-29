@@ -23,7 +23,14 @@ var config = {
     logLevel: logger.DEBUG,
     // path to mount the dyamic proxy
     proxy: '/proxy',
-    // paths to connect to external services
+    // paths to connect to external services, an example config:
+    // {
+    //   proto: 'http'
+    //   port: 8282,
+    //   path: '/hawtio/jolokia',
+    //   targetPath: '/hawtio/jolokia'
+    // }
+    //
     staticProxies: [],
     // directories to search for static assets
     staticAssets: [
@@ -31,7 +38,8 @@ var config = {
     ]
 };
 if (fs.existsSync(configFile)) {
-    config = require(configFile);
+    var conf = require(configFile);
+    _.assign(config, conf);
 }
 logger.useDefaults(config.logLevel);
 if (runningAsScript) {
@@ -102,6 +110,54 @@ var HawtioBackend;
 /// <reference path="init.ts" />
 var HawtioBackend;
 (function (HawtioBackend) {
+    function proxy(uri, req, res) {
+        try {
+            var r = request({ method: req.method, uri: uri, json: req.body });
+            req.pipe(r).pipe(res);
+        }
+        catch (e) {
+            HawtioBackend.log.info('error proxying ' + uri + ': ', e);
+        }
+    }
+    function getTargetURI(options) {
+        var target = new uri({
+            protocol: options.proto,
+            hostname: options.hostname,
+            port: options.port,
+            path: options.path
+        });
+        target.query(options.query);
+        var targetURI = target.toString();
+        HawtioBackend.log.debug("Target URI: ", targetURI);
+        return targetURI;
+    }
+    HawtioBackend.addStartupTask(function () {
+        var index = 0;
+        config.staticProxies.forEach(function (proxyConfig) {
+            index = index + 1;
+            _.defaults(proxyConfig, {
+                path: '/proxy-' + index,
+                hostname: 'localhost',
+                port: 80,
+                proto: 'http',
+                targetPath: '/proxy-' + index
+            });
+            HawtioBackend.log.debug("adding static proxy config: \n", proxyConfig);
+            var router = express.Router();
+            router.use('/', function (req, res, next) {
+                var path = [s.rtrim(proxyConfig.targetPath, '/'), s.ltrim(req.path, '/')].join('/');
+                var uri = getTargetURI({
+                    proto: proxyConfig.proto,
+                    hostname: proxyConfig.hostname,
+                    port: proxyConfig.port,
+                    path: path,
+                    query: req.query
+                });
+                proxy(uri, req, res);
+            });
+            HawtioBackend.app.use(proxyConfig.path, router);
+        });
+    });
     // dynamic proxy
     var proxyRouter = express.Router();
     proxyRouter.param('proto', function (req, res, next, proto) {
@@ -131,31 +187,14 @@ var HawtioBackend;
         }
     });
     proxyRouter.use('/:proto/:hostname/:port/', function (req, res, next) {
-        HawtioBackend.log.debug("Request path: ", req.path);
-        HawtioBackend.log.debug("Request params: ", req.params);
-        HawtioBackend.log.debug("Request query: ", req.query);
-        var target = new uri({
-            protocol: req.params.proto,
+        var uri = getTargetURI({
+            proto: req.params.proto,
             hostname: req.params.hostname,
             port: req.params.port,
             path: req.path,
+            query: req.query
         });
-        target.query(req.query);
-        var targetURI = target.toString();
-        HawtioBackend.log.debug("Target URI: ", targetURI);
-        var r = null;
-        switch (req.method) {
-            case 'POST':
-                r = request.post({ uri: targetURI, json: req.body });
-                break;
-            case 'PUT':
-                r = request.put({ uri: targetURI, json: req.body });
-                break;
-            default:
-                r = request(targetURI);
-                break;
-        }
-        req.pipe(r).pipe(res);
+        proxy(uri, req, res);
     });
     HawtioBackend.addStartupTask(function () {
         HawtioBackend.log.debug("Setting proxy to route: ", config.proxy);

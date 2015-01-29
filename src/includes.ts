@@ -13,9 +13,7 @@ var logger:Logging.LoggerStatic = require('js-logger');
 var s = require('underscore.string');
 var _:_.LoDashStatic = require('lodash');
 var uri = require('URIjs');
-
 var runningAsScript = require.main === module;
-
 var configFile = process.env.HAWTIO_CONFIG_FILE || 'config.js';
 
 // default config values
@@ -26,7 +24,14 @@ var config = {
   logLevel: logger.DEBUG,
   // path to mount the dyamic proxy
   proxy: '/proxy',
-  // paths to connect to external services
+  // paths to connect to external services, an example config:
+  // {
+  //   proto: 'http'
+  //   port: 8282,
+  //   path: '/hawtio/jolokia',
+  //   targetPath: '/hawtio/jolokia'
+  // }
+  //
   staticProxies: [],
   // directories to search for static assets
   staticAssets: [
@@ -34,7 +39,8 @@ var config = {
   ]
 }
 if (fs.existsSync(configFile)) {
-  config = require(configFile);
+  var conf = require(configFile);
+  _.assign(config, conf);
 }
 
 logger.useDefaults(config.logLevel);
