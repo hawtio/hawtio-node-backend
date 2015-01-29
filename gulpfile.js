@@ -62,9 +62,23 @@ gulp.task('watch', ['build'], function() {
   */
 });
 
+
+// testing out stuff
+var HawtioBackend = require('./index.js');
+
+gulp.task('testWatch', function() {
+  plugins.watch(['assets/*'], function() {
+    gulp.start(['reload']);
+  });
+});
+
+gulp.task('reload', function() {
+  gulp.src('.')
+    .pipe(HawtioBackend.reload());
+});
+
 // Test out the server in a gulpfile
 gulp.task('server', function() {
-  var HawtioBackend = require('./index.js');
   HawtioBackend.setConfig({
     logLevel: require('js-logger').DEBUG,
     port: 8080,

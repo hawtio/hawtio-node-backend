@@ -7,13 +7,15 @@
 /// <reference path="../d.ts/underscore.string.d.ts" />
 /// <reference path="../d.ts/URI.d.ts"/>
 var fs = require('fs');
+var eventStream = require('event-stream');
 var express = require('express');
 var request = require('request');
 var logger = require('js-logger');
 var s = require('underscore.string');
 var _ = require('lodash');
 var uri = require('URIjs');
-var lr = require('tiny-lr');
+var tiny_lr = require('tiny-lr');
+var liveReload = require('connect-livereload');
 var body = require('body-parser');
 var runningAsScript = require.main === module;
 var configFile = process.env.HAWTIO_CONFIG_FILE || 'config.js';
@@ -72,18 +74,26 @@ var HawtioBackend;
         _.assign(config, newConfig);
     }
     HawtioBackend.setConfig = setConfig;
-    function setLogLevel(level) {
-        logger.setLevel(level);
-    }
-    HawtioBackend.setLogLevel = setLogLevel;
     var server = null;
+    var lr = null;
     var lrServer = null;
+    function reload() {
+        return eventStream.map(function (file, callback) {
+            if (lr) {
+                lr.changed({
+                    body: {
+                        files: file.path
+                    }
+                });
+            }
+            return callback(null, file);
+        });
+    }
+    HawtioBackend.reload = reload;
     function listen(cb) {
+        var lrPort = config.liveReload.port || 35729;
         if (config.liveReload.enabled) {
-            var port = config.liveReload.port || 35729;
-            lrServer = lr().listen(port, function () {
-                HawtioBackend.log.info("Started livereload, port :", port);
-            });
+            HawtioBackend.app.use(liveReload({ port: lrPort }));
         }
         listening = true;
         startupTasks.forEach(function (cb) {
@@ -91,6 +101,12 @@ var HawtioBackend;
             cb();
         });
         server = HawtioBackend.app.listen(config.port, function () {
+            if (config.liveReload.enabled) {
+                lr = tiny_lr();
+                lrServer = lr.listen(lrPort, function () {
+                    HawtioBackend.log.info("Started livereload, port :", lrPort);
+                });
+            }
             cb(server);
         });
         return server;

@@ -7,13 +7,15 @@
 /// <reference path="../d.ts/underscore.string.d.ts" />
 /// <reference path="../d.ts/URI.d.ts"/>
 var fs = require('fs');
+var eventStream = require('event-stream');
 var express = require('express');
 var request = require('request');
 var logger:Logging.LoggerStatic = require('js-logger');
 var s = require('underscore.string');
 var _:_.LoDashStatic = require('lodash');
 var uri = require('URIjs');
-var lr = require('tiny-lr');
+var tiny_lr = require('tiny-lr');
+var liveReload = require('connect-livereload');
 var body = require('body-parser');
 var runningAsScript = require.main === module;
 var configFile = process.env.HAWTIO_CONFIG_FILE || 'config.js';
