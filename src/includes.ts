@@ -26,7 +26,7 @@ var config = {
   // server listen port
   port: 2772,
   // log level
-  logLevel: logger.DEBUG,
+  logLevel: logger.INFO,
   // path to mount the dyamic proxy
   proxy: '/proxy',
   // paths to connect to external services, an example config:
