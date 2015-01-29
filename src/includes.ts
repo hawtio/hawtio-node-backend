@@ -6,6 +6,7 @@
 /// <reference path="../d.ts/lodash.d.ts" />
 /// <reference path="../d.ts/underscore.string.d.ts" />
 /// <reference path="../d.ts/URI.d.ts"/>
+var path = require('path');
 var fs = require('fs');
 var eventStream = require('event-stream');
 var express = require('express');
@@ -40,7 +41,10 @@ var config = {
   staticProxies: [],
   // directories to search for static assets
   staticAssets: [
-    '/assets'
+    {
+      path: '/',
+      dir: '.'
+    }
   ],
   liveReload: {
     enabled: false,

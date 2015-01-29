@@ -6,6 +6,7 @@
 /// <reference path="../d.ts/lodash.d.ts" />
 /// <reference path="../d.ts/underscore.string.d.ts" />
 /// <reference path="../d.ts/URI.d.ts"/>
+var path = require('path');
 var fs = require('fs');
 var eventStream = require('event-stream');
 var express = require('express');
@@ -39,7 +40,10 @@ var config = {
     staticProxies: [],
     // directories to search for static assets
     staticAssets: [
-        '/assets'
+        {
+            path: '/',
+            dir: '.'
+        }
     ],
     liveReload: {
         enabled: false,
@@ -241,13 +245,13 @@ var HawtioBackend;
 var HawtioBackend;
 (function (HawtioBackend) {
     function mountAsset(mount, dir) {
-        HawtioBackend.app.get(mount, express.static(__dirname + dir));
+        HawtioBackend.app.use(mount, express.static(path.normalize(dir)));
     }
     HawtioBackend.mountAsset = mountAsset;
     HawtioBackend.addStartupTask(function () {
         config.staticAssets.forEach(function (asset) {
             HawtioBackend.log.info("Mounting static asset: ", asset);
-            mountAsset('/', asset);
+            mountAsset(asset.path, asset.dir);
         });
     });
 })(HawtioBackend || (HawtioBackend = {}));

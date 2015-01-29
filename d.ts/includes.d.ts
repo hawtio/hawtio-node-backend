@@ -6,6 +6,7 @@
 /// <reference path="../d.ts/lodash.d.ts" />
 /// <reference path="../d.ts/underscore.string.d.ts" />
 /// <reference path="../d.ts/URI.d.ts" />
+declare var path: any;
 declare var fs: any;
 declare var eventStream: any;
 declare var express: any;
@@ -24,7 +25,10 @@ declare var config: {
     logLevel: Logging.LogLevel;
     proxy: string;
     staticProxies: any[];
-    staticAssets: string[];
+    staticAssets: {
+        path: string;
+        dir: string;
+    }[];
     liveReload: {
         enabled: boolean;
         port: number;

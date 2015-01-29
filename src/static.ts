@@ -3,17 +3,13 @@
 module HawtioBackend {
 
   export function mountAsset(mount:string, dir:string) {
-    if (dir === '.') {
-      app.use(mount, express.static(__dirname));
-    } else {
-      app.use(mount, express.static(__dirname + dir));
-    }
+    app.use(mount, express.static(path.normalize(dir)));
   }
 
   addStartupTask(() => {
     config.staticAssets.forEach((asset) => {
       log.info("Mounting static asset: ", asset);
-      mountAsset('/', asset);
+      mountAsset(asset.path, asset.dir);
     });
   });
 

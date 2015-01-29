@@ -48,7 +48,10 @@ HawtioBackend.setConfig({
     path: '/jolokia',
     targetPath: '/hawtio/jolokia'
   }],
-  assets: ['.'],
+  staticAssets: [{
+    path: '/',
+    dir: '.'
+  }],
   liveReload: {
     enabled: true
   }
@@ -81,6 +84,10 @@ gulp.task('server', function() {
       port: 8282,
       path: '/hawtio/jolokia',
       targetPath: '/hawtio/jolokia'
+    }],
+    staticAssets: [{
+      path: '/',
+      dir: '.'
     }],
     liveReload: {
       enabled: true
