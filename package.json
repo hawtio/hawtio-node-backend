@@ -1,13 +1,33 @@
 {
   "name": "hawtio-node-backend",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "Backend services for hawtio 2.x",
   "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+  "author": {
+    "name": "Stan Lewis",
+    "email": "gashcrumb@gmail.com"
   },
-  "author": "",
-  "license": "ISC",
+  "license": "ASL 2.0",
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:hawtio/hawtio-node-backend.git"
+  },
+  "bugs": {
+    "url": "https://github.com/hawtio/hawtio-node-backend/issues"
+  },
+  "licenses": [
+    {
+      "type": "ASL 2.0",
+      "url": "https://github.com/hawtio/hawtio-node-backend/raw/master/LICENSE.txt"
+    }
+  ],
+  "engines": {
+    "node": ">= 0.10.26",
+    "npm": ">=1.4.3"
+  },
+  "scripts": {
+    "test": "echo \"No tests\""
+  },
   "devDependencies": {
     "event-stream": "^3.2.1",
     "gulp": "^3.8.10",
@@ -31,5 +51,8 @@
     "request": "^2.51.0",
     "tiny-lr": "^0.1.5",
     "underscore.string": "^3.0.2"
-  }
+  },
+  "keywords": [
+    "hawtio"
+  ]
 }

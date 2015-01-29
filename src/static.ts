@@ -3,7 +3,11 @@
 module HawtioBackend {
 
   export function mountAsset(mount:string, dir:string) {
-    app.get(mount, express.static(__dirname + dir));
+    if (dir === '.') {
+      app.use(mount, express.static(__dirname));
+    } else {
+      app.use(mount, express.static(__dirname + dir));
+    }
   }
 
   addStartupTask(() => {
