@@ -13,6 +13,8 @@ var logger:Logging.LoggerStatic = require('js-logger');
 var s = require('underscore.string');
 var _:_.LoDashStatic = require('lodash');
 var uri = require('URIjs');
+var lr = require('tiny-lr');
+var body = require('body-parser');
 var runningAsScript = require.main === module;
 var configFile = process.env.HAWTIO_CONFIG_FILE || 'config.js';
 
@@ -37,7 +39,11 @@ var config = {
   // directories to search for static assets
   staticAssets: [
     '/assets'
-  ]
+  ],
+  liveReload: {
+    enabled: false,
+    port: 35729
+  }
 }
 if (fs.existsSync(configFile)) {
   var conf = require(configFile);

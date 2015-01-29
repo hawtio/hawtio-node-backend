@@ -5,7 +5,7 @@ declare module HawtioBackend {
     function addStartupTask(cb: () => void): void;
     function setConfig(newConfig: any): void;
     function setLogLevel(level: Logging.LogLevel): void;
-    function listen(port: number, cb: (server: any) => void): any;
+    function listen(cb: (server: any) => void): any;
     function stop(cb: any): void;
     function getServer(): any;
 }

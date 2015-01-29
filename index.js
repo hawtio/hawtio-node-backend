@@ -13,6 +13,8 @@ var logger = require('js-logger');
 var s = require('underscore.string');
 var _ = require('lodash');
 var uri = require('URIjs');
+var lr = require('tiny-lr');
+var body = require('body-parser');
 var runningAsScript = require.main === module;
 var configFile = process.env.HAWTIO_CONFIG_FILE || 'config.js';
 // default config values
@@ -36,7 +38,11 @@ var config = {
     // directories to search for static assets
     staticAssets: [
         '/assets'
-    ]
+    ],
+    liveReload: {
+        enabled: false,
+        port: 35729
+    }
 };
 if (fs.existsSync(configFile)) {
     var conf = require(configFile);
@@ -71,19 +77,32 @@ var HawtioBackend;
     }
     HawtioBackend.setLogLevel = setLogLevel;
     var server = null;
-    function listen(port, cb) {
+    var lrServer = null;
+    function listen(cb) {
+        if (config.liveReload.enabled) {
+            var port = config.liveReload.port || 35729;
+            lrServer = lr().listen(port, function () {
+                HawtioBackend.log.info("Started livereload, port :", port);
+            });
+        }
         listening = true;
         startupTasks.forEach(function (cb) {
             HawtioBackend.log.debug("Executing startup task");
             cb();
         });
-        server = HawtioBackend.app.listen(port, function () {
+        server = HawtioBackend.app.listen(config.port, function () {
             cb(server);
         });
         return server;
     }
     HawtioBackend.listen = listen;
     function stop(cb) {
+        if (lrServer) {
+            lrServer.close(function () {
+                HawtioBackend.log.info("Stopped livereload port");
+            });
+            lrServer = null;
+        }
         if (server) {
             server.close(function () {
                 listening = false;
@@ -91,6 +110,7 @@ var HawtioBackend;
                     cb();
                 }
             });
+            server = null;
         }
     }
     HawtioBackend.stop = stop;
@@ -99,7 +119,7 @@ var HawtioBackend;
     }
     HawtioBackend.getServer = getServer;
     if (runningAsScript) {
-        server = listen(config.port, function (server) {
+        server = listen(function (server) {
             var host = server.address().address;
             var port = server.address().port;
             HawtioBackend.log.info("started at ", host, ":", port);

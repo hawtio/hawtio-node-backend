@@ -18,26 +18,39 @@ module HawtioBackend {
   export function setConfig(newConfig:any) {
     _.assign(config, newConfig);
   }
-
+  
   export function setLogLevel(level:Logging.LogLevel) {
     logger.setLevel(level);
   }
 
   var server = null;
+  var lrServer = null;
 
-  export function listen(port:number, cb:(server:any) => void) {
+  export function listen(cb:(server:any) => void) {
+    if (config.liveReload.enabled) {
+      var port = config.liveReload.port || 35729;
+      lrServer = lr().listen(port, () => {
+        log.info("Started livereload, port :", port);
+      });
+    }
     listening = true;
     startupTasks.forEach((cb) => {
       log.debug("Executing startup task");
       cb();
     });
-    server = app.listen(port, () => {
+    server = app.listen(config.port, () => {
       cb(server); 
     });
     return server;
   }
 
   export function stop(cb) {
+    if (lrServer) {
+      lrServer.close(() => {
+        log.info("Stopped livereload port");
+      });
+      lrServer = null;
+    } 
     if (server) {
       server.close(() => {
         listening = false;
@@ -45,6 +58,7 @@ module HawtioBackend {
           cb();
         }
       });
+      server = null;
     }
   }
 
@@ -53,7 +67,7 @@ module HawtioBackend {
   }
 
   if (runningAsScript) {
-    server = listen(config.port, (server) => {
+    server = listen((server) => {
       var host = server.address().address;
       var port = server.address().port;
       log.info("started at ", host, ":", port);

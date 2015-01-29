@@ -13,6 +13,8 @@ declare var logger: Logging.LoggerStatic;
 declare var s: any;
 declare var _: _.LoDashStatic;
 declare var uri: any;
+declare var lr: any;
+declare var body: any;
 declare var runningAsScript: boolean;
 declare var configFile: any;
 declare var config: {
@@ -21,4 +23,8 @@ declare var config: {
     proxy: string;
     staticProxies: any[];
     staticAssets: string[];
+    liveReload: {
+        enabled: boolean;
+        port: number;
+    };
 };

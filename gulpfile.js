@@ -62,6 +62,28 @@ gulp.task('watch', ['build'], function() {
   */
 });
 
+// Test out the server in a gulpfile
+gulp.task('server', function() {
+  var HawtioBackend = require('./index.js');
+  HawtioBackend.setConfig({
+    logLevel: require('js-logger').DEBUG,
+    port: 8080,
+    staticProxies: [{
+      port: 8282,
+      path: '/hawtio/jolokia',
+      targetPath: '/hawtio/jolokia'
+    }],
+    liveReload: {
+      enabled: true
+    }
+  });
+  HawtioBackend.listen(function(server) {
+    var host = server.address().address;
+    var port = server.address().port;
+    console.log("started from gulp file at ", host, ":", port);
+  });
+});
+
 gulp.task('build', ['tsc']);
 
 gulp.task('default', ['watch']);
