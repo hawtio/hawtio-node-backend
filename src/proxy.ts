@@ -2,6 +2,7 @@
 
 module HawtioBackend {
 
+  // dynamic proxy
   var proxyRouter = express.Router();
 
   proxyRouter.param('proto', (req, res, next, proto) => {
@@ -63,5 +64,9 @@ module HawtioBackend {
     req.pipe(r).pipe(res);
   });
 
-  app.use('/proxy', proxyRouter);
+  addStartupTask(() => {
+    log.debug("Setting proxy to route: ", config.proxy);
+    app.use(config.proxy, proxyRouter);
+  });
+
 }

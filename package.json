@@ -24,6 +24,7 @@
     "URIjs": "^1.14.1",
     "express": "^4.11.1",
     "js-logger": "^0.9.14",
+    "lodash": "^3.0.0",
     "request": "^2.51.0",
     "underscore.string": "^3.0.2"
   }

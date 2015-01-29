@@ -3,16 +3,37 @@
 /// <reference path="../d.ts/form-data.d.ts" />
 /// <reference path="../d.ts/request.d.ts" />
 /// <reference path="../d.ts/logger.d.ts" />
+/// <reference path="../d.ts/lodash.d.ts" />
 /// <reference path="../d.ts/underscore.string.d.ts" />
 /// <reference path="../d.ts/URI.d.ts"/>
+var fs = require('fs');
 var express = require('express');
 var request = require('request');
 var logger = require('js-logger');
 var s = require('underscore.string');
+var _ = require('lodash');
 var uri = require('URIjs');
-logger.useDefaults(logger.DEBUG);
-//logger.useDefaults(logger.INFO);
 var runningAsScript = require.main === module;
+var configFile = process.env.HAWTIO_CONFIG_FILE || 'config.js';
+// default config values
+var config = {
+    // server listen port
+    port: 2772,
+    // log level
+    logLevel: logger.DEBUG,
+    // path to mount the dyamic proxy
+    proxy: '/proxy',
+    // paths to connect to external services
+    staticProxies: [],
+    // directories to search for static assets
+    staticAssets: [
+        '/assets'
+    ]
+};
+if (fs.existsSync(configFile)) {
+    config = require(configFile);
+}
+logger.useDefaults(config.logLevel);
 if (runningAsScript) {
     logger.get('hawtio-backend').info("Running as script");
 }
@@ -22,24 +43,54 @@ var HawtioBackend;
 (function (HawtioBackend) {
     HawtioBackend.log = logger.get('hawtio-backend');
     HawtioBackend.app = express();
+    var startupTasks = [];
+    var listening = false;
+    function addStartupTask(cb) {
+        HawtioBackend.log.debug("Adding startup task");
+        startupTasks.push(cb);
+        if (listening) {
+            cb();
+        }
+    }
+    HawtioBackend.addStartupTask = addStartupTask;
+    function setConfig(newConfig) {
+        _.assign(config, newConfig);
+    }
+    HawtioBackend.setConfig = setConfig;
     function setLogLevel(level) {
         logger.setLevel(level);
     }
     HawtioBackend.setLogLevel = setLogLevel;
     var server = null;
     function listen(port, cb) {
+        listening = true;
+        startupTasks.forEach(function (cb) {
+            HawtioBackend.log.debug("Executing startup task");
+            cb();
+        });
         server = HawtioBackend.app.listen(port, function () {
             cb(server);
         });
         return server;
     }
     HawtioBackend.listen = listen;
+    function stop(cb) {
+        if (server) {
+            server.close(function () {
+                listening = false;
+                if (cb) {
+                    cb();
+                }
+            });
+        }
+    }
+    HawtioBackend.stop = stop;
     function getServer() {
         return server;
     }
     HawtioBackend.getServer = getServer;
     if (runningAsScript) {
-        server = listen(2772, function (server) {
+        server = listen(config.port, function (server) {
             var host = server.address().address;
             var port = server.address().port;
             HawtioBackend.log.info("started at ", host, ":", port);
@@ -51,6 +102,7 @@ var HawtioBackend;
 /// <reference path="init.ts" />
 var HawtioBackend;
 (function (HawtioBackend) {
+    // dynamic proxy
     var proxyRouter = express.Router();
     proxyRouter.param('proto', function (req, res, next, proto) {
         HawtioBackend.log.debug("requesting proto: ", proto);
@@ -105,5 +157,23 @@ var HawtioBackend;
         }
         req.pipe(r).pipe(res);
     });
-    HawtioBackend.app.use('/proxy', proxyRouter);
+    HawtioBackend.addStartupTask(function () {
+        HawtioBackend.log.debug("Setting proxy to route: ", config.proxy);
+        HawtioBackend.app.use(config.proxy, proxyRouter);
+    });
+})(HawtioBackend || (HawtioBackend = {}));
+
+/// <reference path="init.ts"/>
+var HawtioBackend;
+(function (HawtioBackend) {
+    function mountAsset(mount, dir) {
+        HawtioBackend.app.get(mount, express.static(__dirname + dir));
+    }
+    HawtioBackend.mountAsset = mountAsset;
+    HawtioBackend.addStartupTask(function () {
+        config.staticAssets.forEach(function (asset) {
+            HawtioBackend.log.info("Mounting static asset: ", asset);
+            mountAsset('/', asset);
+        });
+    });
 })(HawtioBackend || (HawtioBackend = {}));
