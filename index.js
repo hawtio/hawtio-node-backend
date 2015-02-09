@@ -236,7 +236,12 @@ var HawtioBackend;
         }
     });
     proxyRouter.use('/', function (req, res, next) {
-        res.status(200).end();
+        if (req.path === '') {
+            res.status(200).end();
+        }
+        else {
+            next();
+        }
     });
     proxyRouter.use('/:proto/:hostname/:port/', function (req, res, next) {
         var uri = getTargetURI({

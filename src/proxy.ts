@@ -89,7 +89,11 @@ module HawtioBackend {
   });
 
   proxyRouter.use('/', (req, res, next) => {
-    res.status(200).end();
+    if (req.path === '') {
+      res.status(200).end();
+    } else {
+      next();
+    }
   });
 
   proxyRouter.use('/:proto/:hostname/:port/', (req, res, next) => {
