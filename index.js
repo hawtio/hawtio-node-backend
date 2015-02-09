@@ -235,6 +235,9 @@ var HawtioBackend;
             next();
         }
     });
+    proxyRouter.use('/', function (req, res, next) {
+        res.status(200).end();
+    });
     proxyRouter.use('/:proto/:hostname/:port/', function (req, res, next) {
         var uri = getTargetURI({
             proto: req.params.proto,

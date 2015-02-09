@@ -88,6 +88,10 @@ module HawtioBackend {
     }
   });
 
+  proxyRouter.use('/', (req, res, next) => {
+    res.status(200).end();
+  });
+
   proxyRouter.use('/:proto/:hostname/:port/', (req, res, next) => {
     var uri = getTargetURI({
       proto: req.params.proto,
