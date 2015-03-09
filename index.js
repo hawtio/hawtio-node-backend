@@ -165,7 +165,7 @@ var HawtioBackend;
         function handleError(e) {
             res.status(500).end('error proxying to "' + uri + '": ' + e);
         }
-        var r = request({ headers: req.headers, method: req.method, uri: uri, json: req.body });
+        var r = request({ method: req.method, uri: uri, json: req.body });
         req.on('error', handleError).pipe(r).on('error', handleError).pipe(res).on('error', handleError);
     }
     function getTargetURI(options) {
