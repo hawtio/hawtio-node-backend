@@ -3,9 +3,23 @@
 module HawtioBackend {
   export var log = logger.get('hawtio-backend');
   export var app = express();
+  export var proxyRoutes = {};
 
   var startupTasks = [];
   var listening = false;
+
+  export function getTargetURI(options) {
+    var target = new uri({
+      protocol: options.proto,
+      hostname: options.hostname,
+      port: options.port,
+      path: options.path
+    });
+    target.query(options.query);
+    var targetURI = target.toString();
+    log.debug("Target URI: ", targetURI);
+    return targetURI;
+  }
 
   export function addStartupTask(cb:() => void) {
     log.debug("Adding startup task");
@@ -63,6 +77,29 @@ module HawtioBackend {
         });
       }
       cb(server); 
+    });
+    server.on('upgrade', (req, socket, head) => {
+      //console.log("Upgrade event for URL: ", req.url);
+      var targetUri = new uri(req.url);
+      var targetPath = targetUri.path();
+      _.forIn(proxyRoutes, (config, route) => {
+        if (s.startsWith(targetPath, route)) {
+          //console.log("Found config for route: ", route, " config: ", config);
+          if (!config.httpProxy) {
+            var proxyConfig = config.proxyConfig;
+						var target = new uri().protocol(proxyConfig.proto).host(proxyConfig.hostname).port(proxyConfig.port).path(proxyConfig.targetPath).query({}).toString();
+						console.log("Creating websocket proxy to target: ", target);
+            config.proxy = httpProxy.createProxyServer({
+							target: target,
+							secure: false,
+							ws: true
+            });
+          }
+					targetPath = targetPath.substring(route.length);
+					req.url = targetUri.path(targetPath).toString();
+          config.proxy.ws(req, socket, head);
+        }
+      });
     });
     return server;
   }

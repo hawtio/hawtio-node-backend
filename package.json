@@ -46,6 +46,8 @@
     "connect-livereload": "^0.5.2",
     "event-stream": "^3.2.1",
     "express": "^4.11.1",
+    "express-ws": "^0.2.6",
+    "http-proxy": "^1.11.1",
     "js-logger": "^0.9.14",
     "lodash": "^3.0.0",
     "request": "^2.51.0",

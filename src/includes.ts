@@ -11,6 +11,7 @@ var fs = require('fs');
 var eventStream = require('event-stream');
 var express = require('express');
 var request = require('request');
+var httpProxy = require('http-proxy');
 var logger:Logging.LoggerStatic = require('js-logger');
 var s = require('underscore.string');
 var _:_.LoDashStatic = require('lodash');

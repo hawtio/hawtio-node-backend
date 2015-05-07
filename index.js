@@ -11,6 +11,7 @@ var fs = require('fs');
 var eventStream = require('event-stream');
 var express = require('express');
 var request = require('request');
+var httpProxy = require('http-proxy');
 var logger = require('js-logger');
 var s = require('underscore.string');
 var _ = require('lodash');
@@ -65,8 +66,22 @@ var HawtioBackend;
 (function (HawtioBackend) {
     HawtioBackend.log = logger.get('hawtio-backend');
     HawtioBackend.app = express();
+    HawtioBackend.proxyRoutes = {};
     var startupTasks = [];
     var listening = false;
+    function getTargetURI(options) {
+        var target = new uri({
+            protocol: options.proto,
+            hostname: options.hostname,
+            port: options.port,
+            path: options.path
+        });
+        target.query(options.query);
+        var targetURI = target.toString();
+        HawtioBackend.log.debug("Target URI: ", targetURI);
+        return targetURI;
+    }
+    HawtioBackend.getTargetURI = getTargetURI;
     function addStartupTask(cb) {
         HawtioBackend.log.debug("Adding startup task");
         startupTasks.push(cb);
@@ -123,6 +138,29 @@ var HawtioBackend;
             }
             cb(server);
         });
+        server.on('upgrade', function (req, socket, head) {
+            //console.log("Upgrade event for URL: ", req.url);
+            var targetUri = new uri(req.url);
+            var targetPath = targetUri.path();
+            _.forIn(HawtioBackend.proxyRoutes, function (config, route) {
+                if (s.startsWith(targetPath, route)) {
+                    //console.log("Found config for route: ", route, " config: ", config);
+                    if (!config.httpProxy) {
+                        var proxyConfig = config.proxyConfig;
+                        var target = new uri().protocol(proxyConfig.proto).host(proxyConfig.hostname).port(proxyConfig.port).path(proxyConfig.targetPath).query({}).toString();
+                        console.log("Creating websocket proxy to target: ", target);
+                        config.proxy = httpProxy.createProxyServer({
+                            target: target,
+                            secure: false,
+                            ws: true
+                        });
+                    }
+                    targetPath = targetPath.substring(route.length);
+                    req.url = targetUri.path(targetPath).toString();
+                    config.proxy.ws(req, socket, head);
+                }
+            });
+        });
         return server;
     }
     HawtioBackend.listen = listen;
@@ -168,18 +206,6 @@ var HawtioBackend;
         var r = request({ method: req.method, uri: uri, json: req.body });
         req.on('error', handleError).pipe(r).on('error', handleError).pipe(res).on('error', handleError);
     }
-    function getTargetURI(options) {
-        var target = new uri({
-            protocol: options.proto,
-            hostname: options.hostname,
-            port: options.port,
-            path: options.path
-        });
-        target.query(options.query);
-        var targetURI = target.toString();
-        HawtioBackend.log.debug("Target URI: ", targetURI);
-        return targetURI;
-    }
     HawtioBackend.addStartupTask(function () {
         var index = 0;
         config.staticProxies.forEach(function (proxyConfig) {
@@ -195,7 +221,7 @@ var HawtioBackend;
             var router = express.Router();
             router.use('/', function (req, res, next) {
                 var path = [s.rtrim(proxyConfig.targetPath, '/'), s.ltrim(req.path, '/')].join('/');
-                var uri = getTargetURI({
+                var uri = HawtioBackend.getTargetURI({
                     proto: proxyConfig.proto,
                     hostname: proxyConfig.hostname,
                     port: proxyConfig.port,
@@ -205,6 +231,10 @@ var HawtioBackend;
                 proxy(uri, req, res);
             });
             HawtioBackend.app.use(proxyConfig.path, router);
+            HawtioBackend.proxyRoutes[proxyConfig.path] = {
+                proxyConfig: proxyConfig,
+                router: router
+            };
         });
     });
     // dynamic proxy
@@ -244,7 +274,7 @@ var HawtioBackend;
         }
     });
     proxyRouter.use('/:proto/:hostname/:port/', function (req, res, next) {
-        var uri = getTargetURI({
+        var uri = HawtioBackend.getTargetURI({
             proto: req.params.proto,
             hostname: req.params.hostname,
             port: req.params.port,

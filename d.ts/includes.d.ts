@@ -11,6 +11,7 @@ declare var fs: any;
 declare var eventStream: any;
 declare var express: any;
 declare var request: any;
+declare var httpProxy: any;
 declare var logger: Logging.LoggerStatic;
 declare var s: any;
 declare var _: _.LoDashStatic;

@@ -2,6 +2,8 @@
 declare module HawtioBackend {
     var log: Logging.Logger;
     var app: any;
+    var proxyRoutes: {};
+    function getTargetURI(options: any): any;
     function addStartupTask(cb: () => void): void;
     function setConfig(newConfig: any): void;
     function reload(): any;

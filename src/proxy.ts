@@ -14,19 +14,6 @@ module HawtioBackend {
       .on('error', handleError);
   }
 
-  function getTargetURI(options) {
-    var target = new uri({
-      protocol: options.proto,
-      hostname: options.hostname,
-      port: options.port,
-      path: options.path
-    });
-    target.query(options.query);
-    var targetURI = target.toString();
-    log.debug("Target URI: ", targetURI);
-    return targetURI;
-  }
-
   addStartupTask(() => {
     var index = 0;
     config.staticProxies.forEach((proxyConfig:any) => {
@@ -51,9 +38,11 @@ module HawtioBackend {
         });
         proxy(uri, req, res);
       });
-
       app.use(proxyConfig.path, router);
-
+      proxyRoutes[proxyConfig.path] = {
+        proxyConfig: proxyConfig,
+        router: router
+      };
     });
   });
 
