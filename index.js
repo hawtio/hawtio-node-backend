@@ -15,7 +15,7 @@ var httpProxy = require('http-proxy');
 var logger = require('js-logger');
 var s = require('underscore.string');
 var _ = require('lodash');
-var uri = require('URIjs');
+var uri = require('urijs');
 var tiny_lr = require('tiny-lr');
 var liveReload = require('connect-livereload');
 var body = require('body-parser');
@@ -204,7 +204,11 @@ var HawtioBackend;
             res.status(500).end('error proxying to "' + uri + '": ' + e);
         }
         var r = request({ method: req.method, uri: uri, json: req.body });
-        req.on('error', handleError).pipe(r).on('error', handleError).pipe(res).on('error', handleError);
+        req.on('error', handleError)
+            .pipe(r)
+            .on('error', handleError)
+            .pipe(res)
+            .on('error', handleError);
     }
     HawtioBackend.addStartupTask(function () {
         var index = 0;

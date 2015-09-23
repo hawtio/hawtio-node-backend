@@ -41,7 +41,6 @@
     "vinyl-map": "^1.0.1"
   },
   "dependencies": {
-    "URIjs": "^1.14.1",
     "body-parser": "^1.10.2",
     "connect-livereload": "^0.5.2",
     "event-stream": "^3.2.1",
@@ -52,7 +51,8 @@
     "lodash": "^3.0.0",
     "request": "^2.51.0",
     "tiny-lr": "^0.1.5",
-    "underscore.string": "^3.0.2"
+    "underscore.string": "^3.0.2",
+    "urijs": "^1.16.1"
   },
   "keywords": [
     "hawtio"
