@@ -1,6 +1,6 @@
 {
   "name": "hawtio-node-backend",
-  "version": "2.1.0",
+  "version": "2.1.1",
   "description": "Backend services for hawtio 2.x",
   "main": "index.js",
   "author": {
