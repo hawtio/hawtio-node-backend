@@ -31,6 +31,7 @@ module HawtioBackend {
 
   export function setConfig(newConfig:any) {
     _.assign(config, newConfig);
+    log.setLevel(config.logLevel);
   }
   
   var server = null;

@@ -92,6 +92,7 @@ var HawtioBackend;
     HawtioBackend.addStartupTask = addStartupTask;
     function setConfig(newConfig) {
         _.assign(config, newConfig);
+        HawtioBackend.log.setLevel(config.logLevel);
     }
     HawtioBackend.setConfig = setConfig;
     var server = null;
