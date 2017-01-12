@@ -208,8 +208,17 @@ var HawtioBackend;
         req.on('error', handleError)
             .pipe(r)
             .on('error', handleError)
-            .pipe(res)
-            .on('error', handleError);
+            .on('response', function (res2) {
+            if (res2.statusCode === 401 || res2.statusCode === 403) {
+                HawtioBackend.log.info("Authentication failed on remote server:", res2.statusCode, res2.statusMessage, uri);
+                _.defaults(res2.headers, { 'www-authenticate': 'Basic realm="Remote Server"' });
+                HawtioBackend.log.debug("Response headers:\n", res2.headers);
+                res.header(res2.headers).sendStatus(401);
+            }
+            else {
+                res2.pipe(res).on('error', handleError);
+            }
+        });
     }
     HawtioBackend.addStartupTask(function () {
         var index = 0;

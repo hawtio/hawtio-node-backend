@@ -83,7 +83,7 @@ module HawtioBackend {
       //console.log("Upgrade event for URL: ", req.url);
       var targetUri = new uri(req.url);
       var targetPath = targetUri.path();
-      _.forIn(proxyRoutes, (config, route) => {
+      _.forIn(proxyRoutes, (config:any, route) => {
         if (s.startsWith(targetPath, route)) {
           //console.log("Found config for route: ", route, " config: ", config);
           if (!config.httpProxy) {
