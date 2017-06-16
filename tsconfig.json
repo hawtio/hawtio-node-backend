@@ -1,0 +1,10 @@
+{
+  "compilerOptions": {
+    "target": "ES5",
+    "declaration": true,
+    "outFile": "index.js"
+  },
+  "include": [
+    "src/**/*"
+  ]
+}

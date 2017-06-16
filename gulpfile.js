@@ -1,83 +1,33 @@
-var gulp = require('gulp'),
-    eventStream = require('event-stream'),
-    del = require('del'),
-    path = require('path'),
-    fs = require('fs'),
-    s = require('underscore.string'),
-    gulpLoadPlugins = require('gulp-load-plugins');
+var del = require('del');
+var gulp = require('gulp');
+var ts = require('gulp-typescript');
+var tsProject = ts.createProject('tsconfig.json');
+var tsConfig = require('./tsconfig.json');
+var hawtioBackend = null;
 
-var plugins = gulpLoadPlugins({});
-var pkg = require('./package.json');
-
-var config = {
-  main: pkg.main,
-  ts: ['src/*.ts', 'src/**/*.ts'],
-  dts: ['d.ts/*.d.ts', 'd.ts/**/*.d.ts'],
-  tsProject: plugins.typescript.createProject({
-    target: 'ES5',
-    module: 'commonjs',
-    declarationFiles: true,
-    noExternalResolve: false
-  })
-};
-
-gulp.task('clean-defs', function() {
-  return del('defs.d.ts');
+gulp.task('clean', function() {
+  return del('index.*');
 });
 
-gulp.task('tsc', ['clean-defs'], function() {
-  var cwd = process.cwd();
-  var tsResult = gulp.src(config.ts)
-    .pipe(plugins.typescript(config.tsProject))
-    .on('error', plugins.notify.onError({
-      message: '#{ error.message }',
-      title: 'Typescript compilation error'
-    }));
-
-    return eventStream.merge(
-      tsResult.js
-        .pipe(plugins.concat(config.main))
-        .pipe(gulp.dest('.')),
-      tsResult.dts
-        .pipe(gulp.dest('d.ts')))
-        .pipe(plugins.filter('**/*.d.ts'))
-        .pipe(plugins.concatFilenames('defs.d.ts', {
-          root: cwd,
-          prepend: '/// <reference path="',
-          append: '"/>'
-        }))
-        .pipe(gulp.dest('.'));
+gulp.task('tsc', ['clean'], function() {
+  return tsProject.src()
+    .pipe(tsProject())
+    .pipe(gulp.dest('.'));
 });
 
-gulp.task('watch', ['build'], function() {
-  plugins.watch(config.ts, function() {
-    gulp.start(['tsc']);
-  });
-  /*
-  plugins.watch(config.dts, function() {
-    gulp.start(['tsc']);
-  });
-  */
-});
-
-
-// testing out stuff
-var HawtioBackend = require('./index.js');
-
-gulp.task('testWatch', function() {
-  plugins.watch(['assets/*'], function() {
-    gulp.start(['reload']);
-  });
+gulp.task('watch', function() {
+  return gulp.watch([tsConfig.include, 'assets/*'], ['reload']);
 });
 
 gulp.task('reload', function() {
-  gulp.src('.')
-    .pipe(HawtioBackend.reload());
+  return gulp.src('.')
+    .pipe(hawtioBackend.reload());
 });
 
 // Test out the server in a gulpfile
-gulp.task('server', function() {
-  HawtioBackend.setConfig({
+gulp.task('server', ['tsc'], function() {
+  hawtioBackend = require('./index.js');
+  hawtioBackend.setConfig({
     logLevel: require('js-logger').DEBUG,
     port: 8080,
     staticProxies: [{
@@ -89,7 +39,7 @@ gulp.task('server', function() {
       enabled: true
     }
   });
-  HawtioBackend.listen(function(server) {
+  hawtioBackend.listen(function(server) {
     var host = server.address().address;
     var port = server.address().port;
     console.log("started from gulp file at ", host, ":", port);
@@ -98,4 +48,4 @@ gulp.task('server', function() {
 
 gulp.task('build', ['tsc']);
 
-gulp.task('default', ['watch']);
+gulp.task('default', ['build', 'server', 'watch']);

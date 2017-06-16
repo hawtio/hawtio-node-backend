@@ -1,62 +1,53 @@
 {
-  "name": "hawtio-node-backend",
+  "name": "@hawtio/node-backend",
   "version": "2.1.3",
-  "description": "Backend services for hawtio 2.x",
+  "description": "Backend services for hawtio v3",
   "main": "index.js",
-  "author": {
-    "name": "Stan Lewis",
-    "email": "gashcrumb@gmail.com"
+  "types": "index.d.ts",
+  "scripts": {
+    "start": "gulp",
+    "build": "gulp build"
+  },
+  "dependencies": {
+    "@types/node": "^7.0.31",
+    "body-parser": "^1.17.2",
+    "connect-livereload": "^0.6.0",
+    "event-stream": "^3.3.4",
+    "express": "^4.15.3",
+    "express-ws": "^3.0.0",
+    "http-proxy": "^1.16.2",
+    "js-logger": "^1.3.0",
+    "lodash": "^4.17.4",
+    "request": "^2.81.0",
+    "tiny-lr": "^1.0.5",
+    "underscore.string": "^3.3.4",
+    "urijs": "^1.18.10"
+  },
+  "devDependencies": {
+    "del": "^3.0.0",
+    "gulp": "^3.9.1",
+    "gulp-typescript": "^3.1.7",
+    "typescript": "^2.1.5"
   },
   "license": "Apache-2.0",
   "repository": {
     "type": "git",
-    "url": "git@github.com:hawtio/hawtio-node-backend.git"
+    "url": "https://github.com/hawtio/hawtio-node-backend.git"
   },
-  "bugs": {
-    "url": "https://github.com/hawtio/hawtio-node-backend/issues"
-  },
-  "licenses": [
-    {
-      "type": "ASL 2.0",
-      "url": "https://github.com/hawtio/hawtio-node-backend/raw/master/LICENSE.txt"
-    }
-  ],
-  "engines": {
-    "node": ">= 0.10.26",
-    "npm": ">=1.4.3"
-  },
-  "scripts": {
-    "test": "echo \"No tests\""
-  },
-  "devDependencies": {
-    "del": "^2.2.0",
-    "event-stream": "^3.2.1",
-    "gulp": "^3.8.10",
-    "gulp-concat": "^2.4.3",
-    "gulp-concat-filenames": "^1.0.0",
-    "gulp-filter": "^3.0.1",
-    "gulp-load-plugins": "^0.8.0",
-    "gulp-notify": "^2.2.0",
-    "gulp-replace": "^0.5.4",
-    "gulp-typescript": "^2.4.1",
-    "gulp-watch": "^4.1.0",
-    "underscore.string": "^3.0.2"
-  },
-  "dependencies": {
-    "body-parser": "^1.10.2",
-    "connect-livereload": "^0.5.2",
-    "event-stream": "^3.2.1",
-    "express": "^4.11.1",
-    "express-ws": "^0.2.6",
-    "http-proxy": "^1.11.1",
-    "js-logger": "^0.9.14",
-    "lodash": "^3.0.0",
-    "request": "^2.51.0",
-    "tiny-lr": "^0.1.5",
-    "underscore.string": "^3.0.2",
-    "urijs": "^1.17.0"
-  },
-  "keywords": [
-    "hawtio"
-  ]
+  "resolutions": {
+    "body-parser": "1.17.2",
+    "bytes": "2.4.0",
+    "debug": "2.6.7",
+    "depd": "1.1.0",
+    "iconv-lite": "0.4.15",
+    "on-finished": "2.3.0",
+    "qs": "6.4.0",
+    "raw-body": "2.2.0",
+    "type-is": "1.6.15",
+    "ms": "2.0.0",
+    "ee-first": "1.1.1",
+    "mime-types": "2.1.15",
+    "mime-db": "1.27.0",
+    "assert-plus": "1.0.0"
+  }
 }

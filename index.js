@@ -1,11 +1,3 @@
-/// <reference path="../d.ts/node.d.ts" />
-/// <reference path="../d.ts/express.d.ts" />
-/// <reference path="../d.ts/form-data.d.ts" />
-/// <reference path="../d.ts/request.d.ts" />
-/// <reference path="../d.ts/logger.d.ts" />
-/// <reference path="../d.ts/lodash.d.ts" />
-/// <reference path="../d.ts/underscore.string.d.ts" />
-/// <reference path="../d.ts/URI.d.ts"/>
 var path = require('path');
 var fs = require('fs');
 var eventStream = require('event-stream');
@@ -60,7 +52,6 @@ logger.useDefaults(config.logLevel);
 if (runningAsScript) {
     logger.get('hawtio-backend').info("Running as script");
 }
-
 /// <reference path="includes.ts" />
 var HawtioBackend;
 (function (HawtioBackend) {
@@ -196,7 +187,6 @@ var HawtioBackend;
     }
 })(HawtioBackend || (HawtioBackend = {}));
 (module).exports = HawtioBackend;
-
 /// <reference path="init.ts" />
 var HawtioBackend;
 (function (HawtioBackend) {
@@ -302,7 +292,6 @@ var HawtioBackend;
         HawtioBackend.app.use(config.proxy, proxyRouter);
     });
 })(HawtioBackend || (HawtioBackend = {}));
-
 /// <reference path="init.ts"/>
 var HawtioBackend;
 (function (HawtioBackend) {
