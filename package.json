@@ -1,6 +1,6 @@
 {
   "name": "@hawtio/node-backend",
-  "version": "3.0.0",
+  "version": "3.0.1",
   "description": "Backend services for hawtio v3",
   "main": "index.js",
   "types": "index.d.ts",
@@ -36,7 +36,7 @@
   },
   "publishConfig": {
     "access": "public"
-  },  
+  },
   "resolutions": {
     "body-parser": "1.17.2",
     "bytes": "2.4.0",
