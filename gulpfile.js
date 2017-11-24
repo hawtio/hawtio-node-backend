@@ -6,7 +6,7 @@ var tsConfig = require('./tsconfig.json');
 var hawtioBackend = null;
 
 gulp.task('clean', function() {
-  return del('index.*');
+  return del('index.js');
 });
 
 gulp.task('tsc', ['clean'], function() {
