@@ -87,17 +87,17 @@ module HawtioBackend {
         if (s.startsWith(targetPath, route)) {
           //console.log("Found config for route: ", route, " config: ", config);
           if (!config.httpProxy) {
-            var proxyConfig = config.proxyConfig;
-						var target = new uri().protocol(proxyConfig.proto).host(proxyConfig.hostname).port(proxyConfig.port).path(proxyConfig.targetPath).query({}).toString();
-						console.log("Creating websocket proxy to target: ", target);
-            config.proxy = httpProxy.createProxyServer({
-							target: target,
-							secure: false,
-							ws: true
-            });
+              var proxyConfig = config.proxyConfig;
+              var target = new uri().protocol(proxyConfig.proto).host(proxyConfig.hostname).port(proxyConfig.port).path(proxyConfig.targetPath).query({}).toString();
+              console.log("Creating websocket proxy to target: ", target);
+              config.proxy = httpProxy.createProxyServer({
+                  target: target,
+                  secure: false,
+                  ws: true
+              });
           }
-					targetPath = targetPath.substring(route.length);
-					req.url = targetUri.path(targetPath).toString();
+          targetPath = targetPath.substring(route.length);
+          req.url = targetUri.path(targetPath).toString();
           config.proxy.ws(req, socket, head);
         }
       });
