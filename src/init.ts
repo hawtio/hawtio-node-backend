@@ -1,6 +1,6 @@
 /// <reference path="includes.ts" />
 
-module HawtioBackend {
+namespace HawtioBackend {
   export var log = logger.get('hawtio-backend');
   export var app = express();
   export var proxyRoutes = {};

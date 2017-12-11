@@ -1,6 +1,6 @@
 /// <reference path="init.ts"/>
 
-module HawtioBackend {
+namespace HawtioBackend {
 
   export function mountAsset(mount:string, dir:string) {
     app.use(mount, express.static(path.normalize(dir)));

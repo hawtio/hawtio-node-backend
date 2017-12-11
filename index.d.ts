@@ -13,7 +13,7 @@ declare var config: {
         port: number;
     };
 };
-declare module HawtioBackend {
+declare namespace HawtioBackend {
     var log: any;
     var app: any;
     var proxyRoutes: {};
@@ -26,8 +26,8 @@ declare module HawtioBackend {
     function stop(cb: any): void;
     function getServer(): any;
 }
-declare module HawtioBackend {
+declare namespace HawtioBackend {
 }
-declare module HawtioBackend {
+declare namespace HawtioBackend {
     function mountAsset(mount: string, dir: string): void;
 }

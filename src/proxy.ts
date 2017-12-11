@@ -1,6 +1,6 @@
 /// <reference path="init.ts" />
 
-module HawtioBackend {
+namespace HawtioBackend {
 
   function proxy(uri, req, res) {
     function handleError(e) {
