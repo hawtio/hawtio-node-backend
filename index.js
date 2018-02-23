@@ -206,7 +206,9 @@ var HawtioBackend;
                 res.header(res2.headers).sendStatus(401);
             }
             else {
-                res.header(res2.headers);
+                if (res2.headers['content-type']) {
+                    res.header('content-type', res2.headers['content-type']);
+                }
                 res2.pipe(res).on('error', handleError);
             }
         });
