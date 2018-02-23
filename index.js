@@ -206,6 +206,7 @@ var HawtioBackend;
                 res.header(res2.headers).sendStatus(401);
             }
             else {
+                res.header(res2.headers);
                 res2.pipe(res).on('error', handleError);
             }
         });
