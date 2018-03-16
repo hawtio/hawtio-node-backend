@@ -124,9 +124,9 @@ var HawtioBackend;
             }
             else if (typeof config.fallback === 'object') {
                 HawtioBackend.app.use(function (req, res, next) {
-                    var match = _.findKey(config.fallback, _.matches(function (k) { return req.originalUrl.match(new RegExp(k)); }));
+                    var match = _.find(config.fallback, function (_, k) { return req.originalUrl.match(new RegExp(k)); });
                     if (match) {
-                        fs.createReadStream(config.fallback[match]).pipe(res);
+                        fs.createReadStream(match).pipe(res);
                     }
                     else {
                         res.statusCode = 404;
