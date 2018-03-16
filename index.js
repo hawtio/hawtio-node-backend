@@ -117,9 +117,26 @@ var HawtioBackend;
             cb();
         });
         if (config.fallback) {
-            HawtioBackend.app.use(function (req, res, next) {
-                fs.createReadStream(config.fallback).pipe(res);
-            });
+            if (typeof config.fallback === 'string') {
+                HawtioBackend.app.use(function (req, res, next) {
+                    fs.createReadStream(config.fallback).pipe(res);
+                });
+            }
+            else if (typeof config.fallback === 'object') {
+                HawtioBackend.app.use(function (req, res, next) {
+                    var match = _.findKey(config.fallback, function (k) { return req.originalUrl.match(new RegExp(k)); });
+                    if (match) {
+                        fs.createReadStream(config.fallback[match]).pipe(res);
+                    }
+                    else {
+                        res.statusCode = 404;
+                        res.end();
+                    }
+                });
+            }
+            else {
+                HawtioBackend.log.warn("Unsupported fallback option:", config.fallback);
+            }
         }
         server = HawtioBackend.app.listen(config.port, function () {
             if (config.liveReload.enabled) {

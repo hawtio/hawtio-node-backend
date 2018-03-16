@@ -66,10 +66,24 @@ namespace HawtioBackend {
       cb();
     });
     if (config.fallback) {
-      app.use((req, res, next) => {
-        fs.createReadStream(config.fallback).pipe(res);
-      });
-    } 
+      if (typeof config.fallback === 'string') {
+        HawtioBackend.app.use(function (req, res, next) {
+          fs.createReadStream(config.fallback).pipe(res);
+        });
+      } else if (typeof config.fallback === 'object') {
+        HawtioBackend.app.use(function (req, res, next) {
+          const match = _.findKey(config.fallback, k => req.originalUrl.match(new RegExp(k)));
+            if (match) {
+              fs.createReadStream(config.fallback[match]).pipe(res);
+            } else {
+              res.statusCode = 404;
+              res.end();
+            }
+        });
+      } else {
+        HawtioBackend.log.warn("Unsupported fallback option:", config.fallback);
+      }
+    }
     server = app.listen(config.port, () => {
       if (config.liveReload.enabled) {
         lr = tiny_lr();
