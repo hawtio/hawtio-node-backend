@@ -72,7 +72,7 @@ namespace HawtioBackend {
         });
       } else if (typeof config.fallback === 'object') {
         HawtioBackend.app.use(function (req, res, next) {
-          const match = _.findKey(config.fallback, k => req.originalUrl.match(new RegExp(k)));
+          const match = _.findKey(config.fallback, _.matches(k => req.originalUrl.match(new RegExp(k))));
             if (match) {
               fs.createReadStream(config.fallback[match]).pipe(res);
             } else {
