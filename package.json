@@ -12,7 +12,7 @@
     "@types/node": "^7.0.31",
     "body-parser": "^1.17.2",
     "connect-livereload": "^0.6.0",
-    "event-stream": "^3.3.4",
+    "event-stream": "3.3.4",
     "express": "^4.15.3",
     "express-ws": "^3.0.0",
     "http-proxy": "^1.16.2",
