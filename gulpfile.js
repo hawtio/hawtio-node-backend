@@ -1,32 +1,21 @@
-var del = require('del');
-var gulp = require('gulp');
-var ts = require('gulp-typescript');
-var tsProject = ts.createProject('tsconfig.json');
-var tsConfig = require('./tsconfig.json');
-var hawtioBackend = null;
+const { src, dest, watch, series } = require('gulp');
+const del = require('del');
+const ts = require('gulp-typescript');
+const tsProject = ts.createProject('tsconfig.json');
+const tsConfig = require('./tsconfig.json');
 
-gulp.task('clean', function() {
+function clean() {
   return del('index.js');
-});
+}
 
-gulp.task('tsc', ['clean'], function() {
+function tsc() {
   return tsProject.src()
     .pipe(tsProject())
-    .pipe(gulp.dest('.'));
-});
+    .pipe(dest('.'));
+}
 
-gulp.task('watch', function() {
-  return gulp.watch([tsConfig.include, 'assets/*'], ['reload']);
-});
-
-gulp.task('reload', function() {
-  return gulp.src('.')
-    .pipe(hawtioBackend.reload());
-});
-
-// Test out the server in a gulpfile
-gulp.task('server', ['tsc'], function() {
-  hawtioBackend = require('./index.js');
+function server(cb) {
+  const hawtioBackend = require('./index.js');
   hawtioBackend.setConfig({
     logLevel: require('js-logger').DEBUG,
     port: 8080,
@@ -40,12 +29,16 @@ gulp.task('server', ['tsc'], function() {
     }
   });
   hawtioBackend.listen(function(server) {
-    var host = server.address().address;
-    var port = server.address().port;
+    const host = server.address().address;
+    const port = server.address().port;
     console.log("started from gulp file at ", host, ":", port);
+    cb();
   });
-});
+}
 
-gulp.task('build', ['tsc']);
+function watcher() {
+  return watch([...tsConfig.include, 'assets/*'], () => src('.').pipe(hawtioBackend.reload()));
+}
 
-gulp.task('default', ['build', 'server', 'watch']);
+exports.build = series(clean, tsc);
+exports.default = series(clean, tsc, server, watcher);

@@ -9,8 +9,10 @@ namespace HawtioBackend {
   var listening = false;
 
   export function getTargetURI(options) {
-    var target = new uri({
+    var target = new URI({
       protocol: options.proto,
+      username: options.username,
+      password: options.password,
       hostname: options.hostname,
       port: options.port,
       path: options.path
@@ -95,14 +97,14 @@ namespace HawtioBackend {
     });
     server.on('upgrade', (req, socket, head) => {
       //console.log("Upgrade event for URL: ", req.url);
-      var targetUri = new uri(req.url);
+      var targetUri = new URI(req.url);
       var targetPath = targetUri.path();
       _.forIn(proxyRoutes, (config:any, route) => {
         if (s.startsWith(targetPath, route)) {
           //console.log("Found config for route: ", route, " config: ", config);
           if (!config.httpProxy) {
               var proxyConfig = config.proxyConfig;
-              var target = new uri().protocol(proxyConfig.proto).host(proxyConfig.hostname).port(proxyConfig.port).path(proxyConfig.targetPath).query({}).toString();
+              var target = new URI().protocol(proxyConfig.proto).host(proxyConfig.hostname).port(proxyConfig.port).path(proxyConfig.targetPath).query({}).toString();
               console.log("Creating websocket proxy to target: ", target);
               config.proxy = httpProxy.createProxyServer({
                   target: target,

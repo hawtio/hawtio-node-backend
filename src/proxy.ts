@@ -44,6 +44,8 @@ namespace HawtioBackend {
         var path = [s.rtrim(proxyConfig.targetPath, '/'), s.ltrim(req.path, '/')].join('/');
         var uri = getTargetURI({
           proto: proxyConfig.proto,
+          username: proxyConfig.username,
+          password: proxyConfig.password,
           hostname: proxyConfig.hostname,
           port: proxyConfig.port,
           path: path,

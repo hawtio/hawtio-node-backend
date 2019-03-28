@@ -7,7 +7,7 @@ var httpProxy = require('http-proxy');
 var logger = require('js-logger');
 var s = require('underscore.string');
 var _ = require('lodash');
-var uri = require('urijs');
+var URI = require('urijs');
 var tiny_lr = require('tiny-lr');
 var liveReload = require('connect-livereload');
 var body = require('body-parser');
@@ -61,8 +61,10 @@ var HawtioBackend;
     var startupTasks = [];
     var listening = false;
     function getTargetURI(options) {
-        var target = new uri({
+        var target = new URI({
             protocol: options.proto,
+            username: options.username,
+            password: options.password,
             hostname: options.hostname,
             port: options.port,
             path: options.path
@@ -149,14 +151,14 @@ var HawtioBackend;
         });
         server.on('upgrade', function (req, socket, head) {
             //console.log("Upgrade event for URL: ", req.url);
-            var targetUri = new uri(req.url);
+            var targetUri = new URI(req.url);
             var targetPath = targetUri.path();
             _.forIn(HawtioBackend.proxyRoutes, function (config, route) {
                 if (s.startsWith(targetPath, route)) {
                     //console.log("Found config for route: ", route, " config: ", config);
                     if (!config.httpProxy) {
                         var proxyConfig = config.proxyConfig;
-                        var target = new uri().protocol(proxyConfig.proto).host(proxyConfig.hostname).port(proxyConfig.port).path(proxyConfig.targetPath).query({}).toString();
+                        var target = new URI().protocol(proxyConfig.proto).host(proxyConfig.hostname).port(proxyConfig.port).path(proxyConfig.targetPath).query({}).toString();
                         console.log("Creating websocket proxy to target: ", target);
                         config.proxy = httpProxy.createProxyServer({
                             target: target,
@@ -249,6 +251,8 @@ var HawtioBackend;
                 var path = [s.rtrim(proxyConfig.targetPath, '/'), s.ltrim(req.path, '/')].join('/');
                 var uri = HawtioBackend.getTargetURI({
                     proto: proxyConfig.proto,
+                    username: proxyConfig.username,
+                    password: proxyConfig.password,
                     hostname: proxyConfig.hostname,
                     port: proxyConfig.port,
                     path: path,
