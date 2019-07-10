@@ -1,6 +1,6 @@
 {
   "name": "@hawtio/node-backend",
-  "version": "4.0.0",
+  "version": "4.1.0",
   "description": "Backend services for hawtio v3",
   "main": "index.js",
   "types": "index.d.ts",
