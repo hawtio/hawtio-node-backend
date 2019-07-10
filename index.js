@@ -258,6 +258,7 @@ var HawtioBackend;
                     path: path,
                     query: req.query
                 });
+                req.headers.host = proxyConfig.hostname;
                 proxy(uri, req, res);
             });
             HawtioBackend.app.use(proxyConfig.path, router);
