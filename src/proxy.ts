@@ -6,7 +6,6 @@ namespace HawtioBackend {
     function handleError(e) {
       res.status(500).end('error proxying to "' + uri + '": ' + e);
     }
-    delete req.headers.origin;
     delete req.headers.referer;
     var r = request({method: req.method, uri: uri, json: req.body, headers: req.headers});
     req.on('error', handleError)
