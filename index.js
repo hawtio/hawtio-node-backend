@@ -214,7 +214,7 @@ var HawtioBackend;
             res.status(500).end('error proxying to "' + uri + '": ' + e);
         }
         delete req.headers.referer;
-        var r = request({ method: req.method, uri: uri, json: req.body, headers: req.headers });
+        var r = request({ method: req.method, uri: uri, json: req.body, headers: req.headers, strictSSL: false });
         req.on('error', handleError)
             .pipe(r)
             .on('error', handleError)
